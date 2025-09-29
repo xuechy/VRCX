@@ -1,0 +1,13 @@
+# Node
+web/node_modules
+mcp/node_modules
+
+# Rust
+backend/target
+
+# Env
+.env
+
+# OS
+.DS_Store
+*.swp

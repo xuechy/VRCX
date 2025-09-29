@@ -1,0 +1,59 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-app}
+      - POSTGRES_USER=${POSTGRES_USER:-app}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-app}
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-app}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  backend:
+    build: ./backend
+    env_file:
+      - ./.env
+    environment:
+      - DATABASE_URL=postgres://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:-app}@db:5432/${POSTGRES_DB:-app}
+      - RUST_LOG=${RUST_LOG:-info}
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+  web:
+    build: ./web
+    env_file:
+      - ./.env
+    environment:
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8080}
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    volumes:
+      - ./web:/app
+  mcp:
+    build: ./mcp
+    env_file:
+      - ./.env
+    environment:
+      - DATABASE_URL=postgres://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:-app}@db:5432/${POSTGRES_DB:-app}
+      - VRCHAT_API_KEY=${VRCHAT_API_KEY:-}
+      - VRCHAT_AUTH_COOKIE=${VRCHAT_AUTH_COOKIE:-}
+      - BACKEND_URL=${BACKEND_URL:-http://backend:8080}
+    ports:
+      - "8765:8765"
+    depends_on:
+      - db
+    volumes:
+      - ./mcp:/app
+volumes:
+  db-data:

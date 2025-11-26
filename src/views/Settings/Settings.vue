@@ -1033,6 +1033,11 @@
                 <PictureSettings />
             </el-tab-pane>
 
+            <!--//- "Plugins" Tab-->
+            <el-tab-pane lazy :label="t('view.settings.category.plugins')">
+                <PluginSettings />
+            </el-tab-pane>
+
             <!--//- "Advanced" Tab-->
             <el-tab-pane lazy :label="t('view.settings.category.advanced')">
                 <!--//- Advanced | Advanced-->
@@ -1572,6 +1577,7 @@
     const PhotonSettings = defineAsyncComponent(() => import('./components/PhotonSettings.vue'));
     const DiscordSettings = defineAsyncComponent(() => import('./components/DiscordSettings.vue'));
     const PictureSettings = defineAsyncComponent(() => import('./components/PictureSettings.vue'));
+    const PluginSettings = defineAsyncComponent(() => import('./components/PluginSettings.vue'));
     const WristOverlaySettings = defineAsyncComponent(() => import('./components/WristOverlaySettings.vue'));
 
     const { messages, t } = useI18n();

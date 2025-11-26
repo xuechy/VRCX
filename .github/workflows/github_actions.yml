@@ -36,7 +36,7 @@ jobs:
                   echo "${{ needs.set_version.outputs.version }}" > Version
                   cat Version
             - name: Build Cef .NET Application
-              run: dotnet build Dotnet\VRCX-Cef.csproj -p:Configuration=Release -p:WarningLevel=0 -p:Platform=x64 -p:PlatformTarget=x64 -p:RestorePackagesConfig=true -t:"Restore;Clean;Build" -m -a x64 --self-contained
+              run: dotnet build Dotnet\VRCX-Cef.csproj -p:Configuration=Release -p:WarningLevel=0 -p:Platform=x64 -p:PlatformTarget=x64 -p:RestorePackagesConfig=true -p:DefineConstants=ENABLE_LOCAL_API -t:"Restore;Clean;Build" -m -a x64 --self-contained
             - name: Upload Cef dotnet artifacts
               uses: actions/upload-artifact@v4
               with:

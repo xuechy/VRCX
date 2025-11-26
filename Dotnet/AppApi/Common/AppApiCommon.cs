@@ -146,5 +146,46 @@ namespace VRCX
         {
             return VRCIPC.Send(launchUrl);
         }
+
+#if ENABLE_LOCAL_API
+        /// <summary>
+        /// Gets the entire plugin configuration as JSON
+        /// </summary>
+        public string GetPluginConfig()
+        {
+            return Plugins.PluginConfigBridge.GetPluginConfig();
+        }
+
+        /// <summary>
+        /// Updates the plugin configuration from JSON
+        /// </summary>
+        public bool SetPluginConfig(string configJson)
+        {
+            return Plugins.PluginConfigBridge.SetPluginConfig(configJson);
+        }
+
+        /// <summary>
+        /// Tests if the Local API is accessible
+        /// </summary>
+        public async Task<string> TestLocalApi(int port)
+        {
+            try
+            {
+                using var client = new System.Net.Http.HttpClient();
+                client.Timeout = TimeSpan.FromSeconds(3);
+                var response = await client.GetAsync($"http://127.0.0.1:{port}/api/info");
+                if (response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    return content;
+                }
+                return $"{{\"error\": \"HTTP {response.StatusCode}\"}}";
+            }
+            catch (Exception ex)
+            {
+                return $"{{\"error\": \"{ex.Message}\"}}";
+            }
+        }
+#endif
     }
 }

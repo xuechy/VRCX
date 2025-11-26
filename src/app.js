@@ -7,6 +7,7 @@
 import { createApp } from 'vue';
 import { pinia } from './stores';
 import { initPlugins, i18n, initComponents, initSentry } from './plugin';
+import { webhookPlugin } from './plugin/webhookPlugin';
 import ElementPlus from 'element-plus';
 import App from './App.vue';
 
@@ -17,6 +18,10 @@ await initPlugins();
 const app = createApp(App);
 
 app.use(pinia);
+
+// Register webhook plugin after Pinia
+pinia.use(webhookPlugin);
+
 app.use(i18n);
 app.use(ElementPlus);
 initComponents(app);

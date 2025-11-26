@@ -31,6 +31,8 @@ import { useVrStore } from './vr';
 import { useVrcxStore } from './vrcx';
 import { useVRCXUpdaterStore } from './vrcxUpdater';
 import { useWorldStore } from './world';
+import { useWebhookStore } from './webhook';
+import { usePluginSettingsStore } from './settings/plugins';
 
 import { createSentryPiniaPlugin } from '@sentry/vue';
 
@@ -70,6 +72,7 @@ export function createGlobalStores() {
         vrcx: useVrcxStore(),
         sharedFeed: useSharedFeedStore(),
         updateLoop: useUpdateLoopStore(),
+        webhook: useWebhookStore(),
         auth: useAuthStore()
     };
 }
@@ -106,5 +109,7 @@ export {
     useVRCXUpdaterStore,
     useWorldStore,
     useSharedFeedStore,
-    useUpdateLoopStore
+    useUpdateLoopStore,
+    useWebhookStore,
+    usePluginSettingsStore
 };

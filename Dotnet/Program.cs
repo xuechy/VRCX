@@ -28,6 +28,10 @@ namespace VRCX
         public static AppApi AppApiInstance { get; private set; }
         public static AppApiVr AppApiVrInstance { get; private set; }
 
+#if ENABLE_LOCAL_API
+        private static Plugins.PluginLoader pluginLoader;
+#endif
+
         private static void SetProgramDirectories()
         {
             if (string.IsNullOrEmpty(AppDataDirectory))
@@ -249,8 +253,35 @@ namespace VRCX
                 VRCXVRInstance = new VRCXVRCef();
             VRCXVRInstance.Init();
 
+#if ENABLE_LOCAL_API
+            // Initialize plugin system after MainForm is created
+            try
+            {
+                pluginLoader = new Plugins.PluginLoader();
+                pluginLoader.LoadPlugins(MainForm.Instance.Browser);
+                logger.Info("Plugin system loaded successfully");
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "Failed to load plugin system");
+            }
+#endif
+
             Application.Run(new MainForm());
             logger.Info("{0} Exiting...", Version);
+            
+#if ENABLE_LOCAL_API
+            // Unload plugins before exit
+            try
+            {
+                pluginLoader?.UnloadPlugins();
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "Error unloading plugins");
+            }
+#endif
+            
             WebApi.Instance.SaveCookies();
             VRCXVRInstance.Exit();
             CefService.Instance.Exit();

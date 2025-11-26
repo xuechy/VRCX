@@ -1390,6 +1390,104 @@
                     </div>
                 </div>
             </el-tab-pane>
+
+            <!--//- Plugins Tab-->
+            <el-tab-pane lazy label="Plugins">
+                <!--//- Plugins | Local API-->
+                <div class="options-container" style="margin-top: 0">
+                    <span class="header">Local API</span>
+                    <simple-switch
+                        label="Enable Local API Server"
+                        :value="pluginSettingsStore.localApiEnabled"
+                        @change="(v) => (pluginSettingsStore.localApiEnabled = v)" />
+                    
+                    <div class="options-container-item">
+                        <span class="name">Port</span>
+                        <el-input-number
+                            :model-value="pluginSettingsStore.localApiPort"
+                            :min="1024"
+                            :max="65535"
+                            :disabled="!pluginSettingsStore.localApiEnabled"
+                            size="small"
+                            @change="(v) => (pluginSettingsStore.localApiPort = v)" />
+                    </div>
+                    
+                    <div class="options-container-item">
+                        <el-button
+                            size="small"
+                            :disabled="!pluginSettingsStore.localApiEnabled"
+                            @click="pluginSettingsStore.testLocalApi">
+                            Test API Connection
+                        </el-button>
+                    </div>
+                </div>
+                
+                <!--//- Plugins | Webhook-->
+                <div class="options-container">
+                    <span class="header">Webhook</span>
+                    <simple-switch
+                        label="Enable Webhook"
+                        :value="pluginSettingsStore.webhookEnabled"
+                        @change="(v) => (pluginSettingsStore.webhookEnabled = v)" />
+                    
+                    <div class="options-container-item">
+                        <span class="name">Target URL</span>
+                        <el-input
+                            :model-value="pluginSettingsStore.webhookTargetUrl"
+                            placeholder="https://your-webhook-url.com/endpoint"
+                            :disabled="!pluginSettingsStore.webhookEnabled"
+                            size="small"
+                            style="width: 400px"
+                            @change="(v) => (pluginSettingsStore.webhookTargetUrl = v)" />
+                    </div>
+                    
+                    <div class="options-container-item">
+                        <span class="name">Events</span>
+                        <br />
+                        <div style="margin-top: 8px">
+                            <el-checkbox
+                                :model-value="pluginSettingsStore.webhookEvents.playerJoined"
+                                :disabled="!pluginSettingsStore.webhookEnabled"
+                                @change="(v) => pluginSettingsStore.setWebhookEventEnabled('playerJoined', v)">
+                                Player Joined
+                            </el-checkbox>
+                            <el-checkbox
+                                :model-value="pluginSettingsStore.webhookEvents.playerLeft"
+                                :disabled="!pluginSettingsStore.webhookEnabled"
+                                @change="(v) => pluginSettingsStore.setWebhookEventEnabled('playerLeft', v)">
+                                Player Left
+                            </el-checkbox>
+                            <el-checkbox
+                                :model-value="pluginSettingsStore.webhookEvents.locationChanged"
+                                :disabled="!pluginSettingsStore.webhookEnabled"
+                                @change="(v) => pluginSettingsStore.setWebhookEventEnabled('locationChanged', v)">
+                                Location Changed
+                            </el-checkbox>
+                            <el-checkbox
+                                :model-value="pluginSettingsStore.webhookEvents.videoPlay"
+                                :disabled="!pluginSettingsStore.webhookEnabled"
+                                @change="(v) => pluginSettingsStore.setWebhookEventEnabled('videoPlay', v)">
+                                Video Play
+                            </el-checkbox>
+                            <el-checkbox
+                                :model-value="pluginSettingsStore.webhookEvents.portalSpawn"
+                                :disabled="!pluginSettingsStore.webhookEnabled"
+                                @change="(v) => pluginSettingsStore.setWebhookEventEnabled('portalSpawn', v)">
+                                Portal Spawn
+                            </el-checkbox>
+                        </div>
+                    </div>
+                    
+                    <div class="options-container-item">
+                        <el-button
+                            size="small"
+                            :disabled="!pluginSettingsStore.webhookEnabled || !pluginSettingsStore.webhookTargetUrl"
+                            @click="pluginSettingsStore.testWebhook">
+                            Test Webhook
+                        </el-button>
+                    </div>
+                </div>
+            </el-tab-pane>
         </el-tabs>
         <OpenSourceSoftwareNoticeDialog v-if="ossDialog" v-model:ossDialog="ossDialog" />
         <NotificationPositionDialog v-model:isNotificationPositionDialogVisible="isNotificationPositionDialogVisible" />
@@ -1453,7 +1551,8 @@
         useGroupStore,
         useGameLogStore,
         useUserStore,
-        usePhotonStore
+        usePhotonStore,
+        usePluginSettingsStore
     } from '../../stores';
     import NotificationPositionDialog from './dialogs/NotificationPositionDialog.vue';
     import RegistryBackupDialog from './dialogs/RegistryBackupDialog.vue';
@@ -1481,6 +1580,7 @@
     const appearanceSettingsStore = useAppearanceSettingsStore();
     const notificationsSettingsStore = useNotificationsSettingsStore();
     const advancedSettingsStore = useAdvancedSettingsStore();
+    const pluginSettingsStore = usePluginSettingsStore();
 
     const { isAvatarProviderDialogVisible } = storeToRefs(useAvatarProviderStore());
     const { showAvatarProviderDialog } = useAvatarProviderStore();

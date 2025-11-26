@@ -1,0 +1,61 @@
+version: '3.9'
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: dev
+    env_file:
+      - .env
+    environment:
+      RUST_LOG: info
+      DATABASE_URL: sqlite:///app/data/vrcx.db
+    volumes:
+      - ./backend:/app
+      - cargo-cache:/usr/local/cargo/registry
+      - target-cache:/app/target
+      - db-data:/app/data
+    ports:
+      - "8080:8080"
+    command: bash -lc "cargo watch -x 'run --bin vrcx_next_backend'"
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    environment:
+      NEXT_PUBLIC_BACKEND_URL: http://localhost:8080
+      NEXT_TELEMETRY_DISABLED: '1'
+    volumes:
+      - ./frontend:/app
+      - node-modules-frontend:/app/node_modules
+    ports:
+      - "3000:3000"
+    command: npm run dev -- --host 0.0.0.0
+    depends_on:
+      - backend
+  mcp:
+    build:
+      context: ./mcp
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    environment:
+      BACKEND_URL: http://backend:8080
+      VRCHAT_BASE_URL: https://api.vrchat.cloud/api/1
+      VRCHAT_AUTH_COOKIE: ""
+    volumes:
+      - ./mcp:/app
+      - node-modules-mcp:/app/node_modules
+    ports:
+      - "7070:7070"
+    command: npm run dev
+    depends_on:
+      - backend
+volumes:
+  cargo-cache: {}
+  target-cache: {}
+  node-modules-frontend: {}
+  node-modules-mcp: {}
+  db-data: {}
